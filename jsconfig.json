@@ -1,0 +1,11 @@
+{
+  "include": [
+    "packages/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    ".vscode",
+    ".npm",
+    ".yarn"
+  ]
+}
