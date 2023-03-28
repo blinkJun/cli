@@ -11,10 +11,10 @@ const ignoreSSL = axios.create({
     })
 })
 
-async function downloadProjectZip(repoPath, verison, targetPath, filename) {
+async function downloadProjectZip(repoPath, verison, targetPath) {
     const link = `https://codeload.github.com/${repoPath}/zip/refs/tags/${verison}`
     log.verbose(link)
-    return download(link, targetPath, { extract: true, filename })
+    return download(link, targetPath, { extract: true })
 }
 
 async function getRepoTags(repoPath) {
