@@ -1,6 +1,6 @@
 {
   "name": "@blinkjun/cli",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "个人通用脚手架工具",
   "main": "core/index.js",
   "bin": {
