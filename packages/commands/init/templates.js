@@ -47,6 +47,7 @@ module.exports = {
     types: {
         TEMPLATE_TYPE_RES_NPM,
         TEMPLATE_TYPE_RES_GITLAB,
+        TEMPLATE_TYPE_RES_GITHUB,
 
         TEMPLATE_TYPE_NORMAL,
         TEMPLATE_TYPE_COSTUM

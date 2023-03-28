@@ -1,7 +1,8 @@
 const axios = require('axios')
 const semver = require('semver')
 const https = require('https')
-
+const download = require('download')
+const log = require('./log')
 const baseUrl = 'https://api.github.com'
 
 const ignoreSSL = axios.create({
@@ -9,6 +10,12 @@ const ignoreSSL = axios.create({
         rejectUnauthorized: false
     })
 })
+
+async function downloadProjectZip(repoPath, verison, targetPath, filename) {
+    const link = `https://codeload.github.com/${repoPath}/zip/refs/tags/${verison}`
+    log.verbose(link)
+    return download(link, targetPath, { extract: true, filename })
+}
 
 async function getRepoTags(repoPath) {
     return ignoreSSL
@@ -51,5 +58,6 @@ async function getGithubLatestVersion(repoPath, baseVersion) {
 }
 
 module.exports = {
-    getGithubLatestVersion
+    getGithubLatestVersion,
+    downloadProjectZip
 }
