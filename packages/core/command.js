@@ -42,6 +42,18 @@ const registerCommands = async function () {
             exec('version', ...args)
         })
 
+    // 命令3：压缩图片
+    program
+        .command('tinyimg')
+        .argument('[entryPath]', '指定目录')
+        .argument('[outputPath]', '输出目录')
+        .option('--deep', '是否递归查找目录中的图片文件', false)
+        .description('压缩图片，支持jpg、jpeg、png')
+        .action(function (...args) {
+            const exec = require('./exec')
+            exec('tinyimg', ...args)
+        })
+
     // 监听所有的命令，对未知的命令进行提示
     program.on('command:*', (options) => {
         log.warn(colors.red(`未知的命令：${options[0]}`))

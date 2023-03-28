@@ -20,7 +20,7 @@ class Command {
         const formatArgs = args.slice(0, args.length - 1)
 
         // 命令参数 { force:true, debug:true }
-        const params = args[args.length - 1]
+        const params = args[args.length - 2]
 
         this.args = formatArgs
         this.params = params

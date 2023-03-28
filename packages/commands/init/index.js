@@ -6,57 +6,12 @@ const kebabCase = require('kebabcase')
 const glob = require('glob')
 const ejs = require('ejs')
 
+const Command = require('../../models/command')
 const log = require('../../utils/log')
 const { spinnerStart, isCwdEmpty, execCommandAsync } = require('../../utils/utils')
 const { install: installTempalte, updateToCurrentVersion } = require('./install')
 
 const { templates } = require('./templates')
-
-// 安装项目的路径
-let projectPath
-
-// 准备阶段
-async function prepare(projectName, params) {
-    // 带项目名称，直接新建文件夹
-    if (projectName) {
-        projectPath = path.resolve(projectPath, projectName)
-
-        if (!fse.pathExistsSync(projectPath)) {
-            fse.mkdirSync(projectPath)
-        }
-    }
-
-    // 检查文件夹是否为空,是否需要清空文件夹
-    if (!isCwdEmpty(projectPath)) {
-        // 是否强制安装
-        if (!params.force) {
-            const answer = await inquirer.prompt({
-                type: 'confirm',
-                name: 'continue',
-                default: false,
-                message: '当前文件夹不为空，是否继续创建项目？'
-            })
-            if (!answer.continue) {
-                return false
-            }
-        }
-        // 二次询问
-        const answer = await inquirer.prompt({
-            type: 'confirm',
-            name: 'continue',
-            default: false,
-            message: '清空后不可恢复，请确认是否清空当前目录？'
-        })
-        if (answer.continue) {
-            const spinner = spinnerStart('正在清空文件目录...')
-            fse.emptyDirSync(projectPath)
-            spinner.stop(true)
-        } else {
-            return false
-        }
-    }
-    return true
-}
 
 // 获取项目的详细信息
 async function getProjectInfo(projectName) {
@@ -147,7 +102,7 @@ async function getProjectInfo(projectName) {
 }
 
 // 填充变量
-async function renderTemplateValiable(projectInfo) {
+async function renderTemplateValiable(projectInfo, projectPath) {
     const spinner = spinnerStart('正在替换模板变量...')
     return new Promise((resolve, reject) => {
         glob(
@@ -193,77 +148,138 @@ async function renderTemplateValiable(projectInfo) {
     })
 }
 
-async function init([projectName, params]) {
-    projectPath = process.cwd()
-    log.verbose('安装路径', projectPath)
-
-    const prepareSuccess = await prepare(projectName, params)
-    if (!prepareSuccess) {
-        return false
+// 命令对象
+class InitCommand extends Command {
+    // 初始化
+    init() {
+        // 图片所在路径
+        this.projectName = this.args[0]
+        // 安装项目的路径
+        this.projectPath = process.cwd()
+        log.verbose('安装路径', this.projectPath)
     }
 
-    const projectInfo = await getProjectInfo(projectName)
-    if (!projectInfo) {
-        return false
-    }
+    async exec() {
+        const projectName = this.projectName
+        const projectPath = this.projectPath
+        const prepareSuccess = await this.prepare()
+        if (!prepareSuccess) {
+            return false
+        }
 
-    const template = projectInfo.template
+        const projectInfo = await getProjectInfo(projectName)
+        if (!projectInfo) {
+            return false
+        }
 
-    await updateToCurrentVersion(template)
+        const template = projectInfo.template
 
-    // 检查模板目录
-    const { USER_HOME, CLI_PROJECT_TEMPLATE_PATH } = process.env
-    const cachePath = path.resolve(USER_HOME, CLI_PROJECT_TEMPLATE_PATH)
-    const templatePath = path.resolve(cachePath, `${template.name}@${template.version}`)
+        await updateToCurrentVersion(template)
 
-    // 下载模板到缓存目录
-    await installTempalte(projectInfo.template)
+        // 检查模板目录
+        const { USER_HOME, CLI_PROJECT_TEMPLATE_PATH } = process.env
+        const cachePath = path.resolve(USER_HOME, CLI_PROJECT_TEMPLATE_PATH)
+        const templatePath = path.resolve(cachePath, `${template.name}@${template.version}`)
 
-    // 将模板复制到指定目录
-    const spinner = spinnerStart('正在安装标准模板...')
-    fse.copySync(templatePath, projectPath)
-    spinner.stop(true)
+        // 下载模板到缓存目录
+        await installTempalte(projectInfo.template)
 
-    // 替换模板中的变量
-    await renderTemplateValiable(projectInfo)
+        // 将模板复制到指定目录
+        const spinner = spinnerStart('正在安装标准模板...')
+        fse.copySync(templatePath, projectPath)
+        spinner.stop(true)
 
-    const { installCommand, serveCommand } = projectInfo.template
+        // 替换模板中的变量
+        await renderTemplateValiable(projectInfo, projectPath)
 
-    // 安装依赖
-    if (installCommand) {
-        log.notice('开始依赖安装')
-        const args = installCommand.split(' ')
-        const command = args[0]
-        const commandArgs = args.slice(1)
-        const ret = await execCommandAsync(command, commandArgs, {
-            cwd: projectPath,
-            stdio: 'inherit'
-        })
-        if (ret !== 0) {
-            throw new Error('安装依赖失败！')
+        const { installCommand, serveCommand } = projectInfo.template
+
+        // 安装依赖
+        if (installCommand) {
+            log.notice('开始依赖安装')
+            const args = installCommand.split(' ')
+            const command = args[0]
+            const commandArgs = args.slice(1)
+            const ret = await execCommandAsync(command, commandArgs, {
+                cwd: projectPath,
+                stdio: 'inherit'
+            })
+            if (ret !== 0) {
+                throw new Error('安装依赖失败！')
+            } else {
+                log.success('依赖安装成功！')
+            }
         } else {
-            log.success('依赖安装成功！')
+            throw new Error('无依赖安装命令:installCommand')
         }
-    } else {
-        throw new Error('无依赖安装命令:installCommand')
-    }
 
-    // 启动服务
-    if (serveCommand) {
-        log.notice('开始启动本地服务')
-        const args = serveCommand.split(' ')
-        const command = args[0]
-        const commandArgs = args.slice(1)
-        const ret = await execCommandAsync(command, commandArgs, {
-            cwd: projectPath,
-            stdio: 'inherit'
-        })
-        if (ret !== 0) {
-            throw new Error('启动本地服务失败！')
+        // 启动服务
+        if (serveCommand) {
+            log.notice('开始启动本地服务')
+            const args = serveCommand.split(' ')
+            const command = args[0]
+            const commandArgs = args.slice(1)
+            const ret = await execCommandAsync(command, commandArgs, {
+                cwd: projectPath,
+                stdio: 'inherit'
+            })
+            if (ret !== 0) {
+                throw new Error('启动本地服务失败！')
+            }
+        } else {
+            throw new Error('无本地服务启动命令:serveCommand')
         }
-    } else {
-        throw new Error('无本地服务启动命令:serveCommand')
+    }
+    // 准备阶段
+    async prepare() {
+        let projectPath = this.projectPath
+        const projectName = this.projectName
+        const params = this.params
+        // 带项目名称，直接新建文件夹
+        if (projectName) {
+            projectPath = path.resolve(projectPath, projectName)
+
+            if (!fse.pathExistsSync(projectPath)) {
+                fse.mkdirSync(projectPath)
+            }
+        }
+
+        // 检查文件夹是否为空,是否需要清空文件夹
+        if (!isCwdEmpty(projectPath)) {
+            // 是否强制安装
+            if (!params.force) {
+                const answer = await inquirer.prompt({
+                    type: 'confirm',
+                    name: 'continue',
+                    default: false,
+                    message: '当前文件夹不为空，是否继续创建项目？'
+                })
+                if (!answer.continue) {
+                    return false
+                }
+            }
+            // 二次询问
+            const answer = await inquirer.prompt({
+                type: 'confirm',
+                name: 'continue',
+                default: false,
+                message: '清空后不可恢复，请确认是否清空当前目录？'
+            })
+            if (answer.continue) {
+                const spinner = spinnerStart('正在清空文件目录...')
+                fse.emptyDirSync(projectPath)
+                spinner.stop(true)
+            } else {
+                return false
+            }
+        }
+        return true
     }
 }
 
-module.exports = init
+function exec(...args) {
+    // 初始化
+    return new InitCommand(...args)
+}
+
+module.exports = exec
