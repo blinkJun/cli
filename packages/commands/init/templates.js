@@ -7,11 +7,11 @@ const TEMPLATE_TYPE_COSTUM = 'custom'
 module.exports = {
     templates: [
         {
-            name: '标准vue3后台管理模板',
-            npmName: '@blink-cli/template-admin',
+            name: 'Hawk-Admin',
+            npmName: 'github:blinkJun/Hawk-Admin',
             version: 'latest',
             resType: TEMPLATE_TYPE_RES_NPM,
-            type: TEMPLATE_TYPE_COSTUM,
+            type: TEMPLATE_TYPE_NORMAL,
             installCommand: 'npm install --registry=http://registry.npm.taobao.org/',
             serveCommand: 'npm run dev'
         },

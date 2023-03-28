@@ -7,7 +7,7 @@
 -   安装最新代码
 
 ```bash
-npm i @blink/cli -g
+npm i @blinkjun/cli -g
 ```
 
 ## 目录结构

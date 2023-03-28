@@ -1,4 +1,4 @@
-const { log } = require('../utils/log')
+const log = require('../utils/log')
 const semver = require('semver')
 const colors = require('colors')
 
@@ -38,6 +38,7 @@ class Command {
             // 实例命令执行
             await this.exec()
         } catch (error) {
+            log.verbose(error)
             log.error(error.message)
         }
     }

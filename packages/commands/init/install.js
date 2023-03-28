@@ -45,7 +45,7 @@ async function installNpmTemplate(cachePath, templatePath, template) {
         }
     }
     // 复制到模板目录
-    fse.copySync(path.resolve(pkg.getCachePackagePath(), 'template'), templatePath)
+    fse.copySync(pkg.getCachePackagePath(), templatePath)
 }
 
 // 下载 gitlab模板
