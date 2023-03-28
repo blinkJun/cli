@@ -1,5 +1,5 @@
 {
-  "name": "@blink-jun/cli",
+  "name": "@blink/cli",
   "version": "1.0.0",
   "description": "个人通用脚手架工具",
   "main": "core/index.js",

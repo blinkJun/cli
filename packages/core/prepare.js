@@ -1,16 +1,13 @@
 const path = require('path')
-
 const semver = require('semver')
 const colors = require('colors')
 const { homedir } = require('os')
 const fse = require('fs-extra')
 
+const { getNpmLatestVersion } = require('../utils/get-npm-info')
 const log = require('../utils/log')
 const pkg = require('../../package.json')
 const defaultEnv = require('./env')
-
-const config = require('../config')
-const { getProjectLatestTag } = require('../utils/gitlab')
 
 function checkCliDefaultDir() {
     const { USER_HOME, CLI_PROJECT_TEMPLATE_PATH, CLI_KEYS_PATH } = process.env
@@ -48,7 +45,7 @@ async function checkCliVersion() {
     const { version, name } = pkg
     log.verbose('当前版本：', `${version}`)
     try {
-        const latestVersion = await getProjectLatestTag(config.git.cliProjectId, version)
+        const latestVersion = await getNpmLatestVersion(pkg.name)
         log.verbose('最新版本：', `${latestVersion}`)
         // 最新版本大于当前版本则建议更新
         if (latestVersion && semver.gt(latestVersion, version)) {
