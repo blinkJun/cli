@@ -27,7 +27,7 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - run: npm i pnpm -g
-      - run: pnpm i
+      - run: pnpm install --lockfile=false
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
