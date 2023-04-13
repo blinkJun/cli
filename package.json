@@ -33,7 +33,7 @@
     "url": "https://github.com/blinkJun/cli/issues"
   },
   "homepage": "https://github.com/blinkJun/cli#readme",
-  "devDependencies": {
+  "dependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-angular": "^17.0.3",
     "@commitlint/cz-commitlint": "^17.0.3",
