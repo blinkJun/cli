@@ -23,7 +23,7 @@ module.exports = {
             type: TEMPLATE_TYPE_NORMAL,
             version: 'latest',
             installCommand: 'npm install --registry=http://registry.npm.taobao.org/',
-            serveCommand: 'npm run serve'
+            serveCommand: 'npm run dev'
         },
         {
             name: '大也-后台模板',
@@ -32,7 +32,7 @@ module.exports = {
             type: TEMPLATE_TYPE_NORMAL,
             version: 'latest',
             installCommand: 'npm install --registry=http://registry.npm.taobao.org/',
-            serveCommand: 'npm run serve'
+            serveCommand: 'npm run dev'
         },
         {
             name: '大也-uniapp小程序模板',
