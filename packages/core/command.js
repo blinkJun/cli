@@ -19,6 +19,9 @@ const registerCommands = async function () {
         log.level = process.env.LOG_LEVEL
     })
 
+    // 增加版本号参数
+    program.option('-v, --version', '是否开启调试模式', false).on('option:version', () => {})
+
     // 注册命令
     // 命令1：初始化项目
     program
@@ -52,6 +55,17 @@ const registerCommands = async function () {
         .action(function (...args) {
             const exec = require('./exec')
             exec('tinyimg', ...args)
+        })
+
+    // 命令4：生成icon图标
+    program
+        .command('create-icon')
+        .argument('<sourcePath>', '图片源文件')
+        .argument('[outputPath]', '输出目录')
+        .description('使用jpg、jpeg、png、svg等格式的图片生成icon')
+        .action(function (...args) {
+            const exec = require('./exec')
+            exec('create-icon', ...args)
         })
 
     // 监听所有的命令，对未知的命令进行提示

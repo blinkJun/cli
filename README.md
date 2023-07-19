@@ -45,3 +45,14 @@ npm i @blinkjun/cli -g
 2. `blink version `：更新项目版本，**请注意**，该操作请在项目的所有更改都提交完毕时使用！详情请看：[`version command`](./packages/commands/version/readme.md)
 
 3. `blink tinyimg`：压缩图片，详情请看：[`tinyimg command`](./packages/commands/tinyimg/readme.md)
+
+## 其他问题
+
+1. 安装`sharp`失败解决方法：
+   更改源：
+
+```bash
+npm_config_sharp_binary_host="https://npmmirror.com/mirrors/sharp" \
+npm_config_sharp_libvips_binary_host="https://npmmirror.com/mirrors/sharp-libvips" \
+npm install sharp
+```
