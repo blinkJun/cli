@@ -46,6 +46,8 @@ npm i @blinkjun/cli -g
 
 3. `blink tinyimg`：压缩图片，详情请看：[`tinyimg command`](./packages/commands/tinyimg/readme.md)
 
+4. `blink create-icon <sourcePath>`：根据图片生成对应`icon`，详情请看：[`create-icon command`](./packages/commands/create-icon/readme.md)
+
 ## 其他问题
 
 1. 安装`sharp`失败解决方法：
